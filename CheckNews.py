@@ -24,38 +24,38 @@ def check_news(couchdb_server, delete: bool):
 
         val = Validator(schema_news_in_database)
         if not val.validate(dbo_news):
-            log.error("news " + _id + " invalid: " + str(val.errors))
+            log.error(f"news {_id} invalid: {val.errors}")
             continue
-        log.debug("news " + _id + " valid")
+        log.debug(f"news {_id} valid")
 
         if _id not in db_rubrics:
             if delete:
-                log.info("rubric for news " + _id + " does not exist, deleting")
+                log.info(f"rubric for news {_id} does not exist, deleting")
                 db_news.delete(dbo_news)
                 continue
             else:
-                log.info("rubric for news " + _id + " does not exist, would delete")
+                log.info(f"rubric for news {_id} does not exist, would delete")
 
         for index in range(0, 10):
             if int(time.time()) - dbo_news["time"][index] > db_rubrics[_id]["expiration"]:
                 if delete:
-                    log.info("news " + _id + " entry " + str(index) + " has expired, deleting")
+                    log.info(f"news {_id} entry {index} has expired, deleting")
                     dbo_news["data"][index] = ""
                     dbo_news["time"][index] = 0
                 else:
-                    log.info("news " + _id + " entry " + str(index) + " has expired, would delete")
+                    log.info(f"news {_id} entry {index} has expired, would delete")
             else:
-                log.debug("news " + _id + " entry " + str(index) + " not expired, do not delete")
+                log.debug(f"news {_id} entry {index} not expired, do not delete")
 
         if dbo_news["time"] == [0] * 10:
             if delete:
-                log.info("news " + _id + " has no data left, deleting")
+                log.info(f"news {_id} has no data left, deleting")
                 db_news.delete(dbo_news)
                 continue
             else:
-                log.info("news " + _id + " has no data left, would delete")
+                log.info(f"news {_id} has no data left, would delete")
                 continue
         else:
-            log.debug("news " + _id + " has non-expired data, do not delete")
+            log.debug(f"news {_id} has non-expired data, do not delete")
 
         db_news.save(dbo_news)

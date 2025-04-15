@@ -48,6 +48,6 @@ def check_nodes(couchdb_server, delete: bool):
 
         val = Validator(schema_node_in_database)
         if not val.validate(dbo_node):
-            log.error("node " + _id + " invalid: " + str(val.errors))
+            log.error(f"node {_id} invalid: {val.errors}")
             continue
-        log.debug("node " + _id + " valid")
+        log.debug(f"node {_id} valid")

@@ -45,28 +45,39 @@ def check_rubrics(couchdb_server, delete: bool):
 
         val = Validator(schema_rubric_in_database)
         if not val.validate(dbo_rubric):
-            log.error("rubric " + _id + " invalid: " + str(val.errors))
+            log.error(f"rubric {_id} invalid: {val.errors}")
             continue
-        log.debug("rubric " + _id + " valid")
+        log.debug(f"rubric {_id} valid")
 
-        bool_has_valid_transmitter_groups = False
-        bool_has_valid_transmitter_is = False
+        set_transmitter_groups_of_entry = set(dbo_rubric["transmitter_groups"])
+        set_transmitter_ids_of_entry = set(dbo_rubric["transmitters"])
 
-        for str_transmitter_group in dbo_rubric["transmitter_groups"]:
-            if str_transmitter_group in set_transmitter_groups:
-                bool_has_valid_transmitter_groups = True
-            else:
-                log.warning("rubric " + _id + " has unknown transmitter group " + str_transmitter_group)
+        set_valid_transmitter_groups = set_transmitter_groups_of_entry & set_transmitter_groups
+        set_valid_transmitters = set_transmitter_ids_of_entry & set_transmitter_ids
 
-        for str_transmitter in dbo_rubric["transmitters"]:
-            if str_transmitter in set_transmitter_ids:
-                bool_has_valid_transmitter_is = True
-            else:
-                log.warning("rubric " + _id + " has unknown transmitter " + str_transmitter)
+        set_invalid_transmitter_groups = set_transmitter_groups_of_entry - set_valid_transmitter_groups
+        set_invalid_transmitters = set_transmitter_ids_of_entry - set_valid_transmitters
 
-        if not bool_has_valid_transmitter_groups and not bool_has_valid_transmitter_is:
+        if not set_valid_transmitter_groups and not set_valid_transmitters:
             if delete:
-                log.info("rubric " + _id + " has neither valid transmitter groups nor valid transmitters, deleting")
+                log.info(f"rubric {_id} has neither valid transmitter groups nor valid transmitters, deleting")
                 db_rubrics.delete(dbo_rubric)
             else:
-                log.info("rubric " + _id + " has neither valid transmitter groups nor valid transmitters, would delete")
+                log.info(f"rubric {_id} has neither valid transmitter groups nor valid transmitters, would delete")
+            continue
+
+        if set_invalid_transmitter_groups:
+            if delete:
+                log.info(f"rubric {_id} has has invalid transmitter groups {set_invalid_transmitter_groups}, updating")
+                dbo_rubric["transmitter_groups"] = list(set_valid_transmitter_groups)
+            else:
+                log.info(
+                    f"rubric {_id} has has invalid transmitter groups {set_invalid_transmitter_groups}, would update"
+                )
+
+        if set_invalid_transmitters:
+            if delete:
+                log.info(f"rubric {_id} has has invalid transmitters {set_invalid_transmitters}, updating")
+                dbo_rubric["transmitters"] = list(set_valid_transmitters)
+            else:
+                log.info(f"rubric {_id} has has invalid transmitters {set_invalid_transmitters}, would update")

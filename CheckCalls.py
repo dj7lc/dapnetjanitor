@@ -32,20 +32,20 @@ def check_calls(couchdb_server, delete: bool):
 
         val = Validator(schema_call_in_database)
         if not val.validate(dbo_call):
-            log.error("call " + _id + " invalid: " + str(val.errors))
+            log.error(f"call {_id} invalid: {val.errors}")
             if delete:
-                log.error("call " + _id + " invalid, deleting")
+                log.error(f"call {_id} invalid, deleting")
                 db_calls.delete(dbo_call)
             else:
-                log.error("call " + _id + " invalid, would delete")
+                log.error(f"call {_id} invalid, would delete")
             continue
-        log.debug("call " + _id + " valid")
+        log.debug(f"call {_id} valid")
 
         if dbo_call["expiration"] + dbo_call["created_on"] - int(time.time()) < 0:
             if delete:
-                log.info("call " + _id + " expired, deleting")
+                log.info(f"call {_id} expired, deleting")
                 db_calls.delete(dbo_call)
             else:
-                log.info("call " + _id + " expired, would delete")
+                log.info(f"call {_id} expired, would delete")
         else:
-            log.debug("call " + _id + " not expired, do not delete")
+            log.debug(f"call {_id} not expired, do not delete")
