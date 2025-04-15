@@ -64,13 +64,6 @@ def check_subscribers(couchdb_server, delete: bool):
     db_subscribers = couchdb_server["subscribers"]
     db_transmitters = couchdb_server["transmitters"]
 
-    set_transmitter_ids = {
-        member.key for member in db_transmitters.view("_design/transmitters/_view/id")
-    }
-    set_transmitter_groups = {
-        member.key for member in db_transmitters.view("_design/transmitters/_view/groupstomembers")
-    }
-
     for _id in db_subscribers:
         if _id == "_design/subscribers":
             continue
