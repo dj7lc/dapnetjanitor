@@ -81,25 +81,3 @@ def check_subscribers(couchdb_server, delete: bool):
             log.error("subscriber " + _id + " invalid: " + str(val.errors))
             continue
         log.debug("subscriber " + _id + " valid")
-
-        bool_has_valid_transmitter_groups = False
-        bool_has_valid_transmitter_is = False
-
-        for str_transmitter_group in dbo_rubric["transmitter_groups"]:
-            if str_transmitter_group in set_transmitter_groups:
-                bool_has_valid_transmitter_groups = True
-            else:
-                log.warning("rubric " + _id + " has unknown transmitter group " + str_transmitter_group)
-
-        for str_transmitter in dbo_rubric["transmitters"]:
-            if str_transmitter in set_transmitter_ids:
-                bool_has_valid_transmitter_is = True
-            else:
-                log.warning("rubric " + _id + " has unknown transmitter " + str_transmitter)
-
-        if not bool_has_valid_transmitter_groups and not bool_has_valid_transmitter_is:
-            if delete:
-                log.info("rubric " + _id + " has neither valid transmitter groups nor valid transmitters, deleting")
-                db_rubrics.delete(dbo_rubric)
-            else:
-                log.info("rubric " + _id + " has neither valid transmitter groups nor valid transmitters, would delete")

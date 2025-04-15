@@ -21,7 +21,9 @@ schema_rubric_in_database = {
     "owners": {"type": "list", "schema": {"anyof": [{"type": "string"}]}, "required": True},
     "sub_ric": {"type": "integer", "min": 0, "max": 3, "required": True},
     "transmitter_groups": {
-        "type": "list", "schema": {"anyof": [{"type": "string"}, {"nullable": True}]}, "required": True
+        "type": "list",
+        "schema": {"anyof": [{"type": "string"}, {"nullable": True}]},
+        "required": True,
     },
     "transmitters": {"type": "list", "schema": {"anyof": [{"type": "string"}, {"nullable": True}]}, "required": True},
 }
@@ -31,9 +33,7 @@ def check_rubrics(couchdb_server, delete: bool):
     db_rubrics = couchdb_server["rubrics"]
     db_transmitters = couchdb_server["transmitters"]
 
-    set_transmitter_ids = {
-        member.key for member in db_transmitters.view("_design/transmitters/_view/id")
-    }
+    set_transmitter_ids = {member.key for member in db_transmitters.view("_design/transmitters/_view/id")}
     set_transmitter_groups = {
         member.key for member in db_transmitters.view("_design/transmitters/_view/groupstomembers")
     }

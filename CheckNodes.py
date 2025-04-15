@@ -1,5 +1,4 @@
 import logging
-import time
 
 from cerberus import Validator
 
